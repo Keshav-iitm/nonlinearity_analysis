@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 import os
 import psutil
 import argparse
-from scipy.signal import find_peaks,detrend,savgol_filter
+import pywt
+import sys
+from scipy.signal import find_peaks,detrend,savgol_filter,convolve, morlet
 from scipy.fft import fft, fftfreq
 from sklearn.neighbors import KDTree
 from mpl_toolkits.mplot3d import Axes3D
@@ -96,6 +98,105 @@ plt.ylabel("Amplitude")
 plt.grid()
 plt.legend()
 plt.show()
+# ################# Morlet wave transform
+#params
+duration = t_plot[-1] - t_plot[0] 
+t_for_morlet = t_plot[1]-t_plot[0]
+fs = 1/t_for_morlet
+fc = 0.8125 #for morlet 
+
+#freq ranges
+f_min = 0.10
+f_max = 10
+num_freq = 100
+frequencies = np.linspace(f_min, f_max, num_freq)
+
+#scales
+scales = fc*fs / frequencies
+
+#CWT
+cwt_matrix,_ = pywt.cwt(cd_plot, scales, 'cmor1.5-1.0', sampling_period=1/fs)
+print(f'CWT matrix shape: {cwt_matrix.shape}')
+print(f'Frequencies vector shape: {frequencies.shape}')
+
+plt.figure(figsize=(12, 6))
+plt.imshow(np.abs(cwt_matrix), extent=[0, duration, frequencies[-1], frequencies[0]],
+           cmap='viridis', aspect='auto')
+plt.colorbar(label='Magnitude')
+plt.xlabel('Time [s]')
+plt.ylabel('Frequency [Hz]')
+# plt.xticks(np.arange(min(cd_plot),max(cd_plot)+0.5,1))
+# plt.yticks(np.arange(min(scales),max(scales)+0.5,1))
+plt.title('Morlet Wavelet Transform (Magnitude)')
+plt.show()
+# #params
+# duration = t_plot[-1] - t_plot[0] 
+# t_for_morlet = t_plot[1]-t_plot[0]
+# fs = 1/t_for_morlet
+# fc = 0.8125 #for morlet 
+
+# #freq ranges
+# f_min = 0.14
+# f_max = 100
+# num_freq = 100
+# frequencies = np.linspace(f_min, f_max, num_freq)
+
+# #scales
+# scales = fc*fs / frequencies
+
+# #CWT
+# cwt_matrix,_ = pywt.cwt(cd_plot, scales, 'cmor1.5-1.0', sampling_period=1/fs)
+# print(f'CWT matrix shape: {cwt_matrix.shape}')
+# print(f'Frequencies vector shape: {frequencies.shape}')
+
+# plt.figure(figsize=(12, 6))
+# plt.imshow(np.abs(cwt_matrix), extent=[0, duration, frequencies[-1], frequencies[0]],
+#            cmap='viridis', aspect='auto')
+# plt.colorbar(label='Magnitude')
+# plt.xlabel('Time [s]')
+# plt.ylabel('Frequency [Hz]')
+# plt.title('Morlet Wavelet Transform (Magnitude)')
+# plt.show()
+
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import pywt
+
+# # Sampling info
+# fs = 1000
+# duration = 1.0
+# t = np.linspace(0, duration, int(fs * duration), endpoint=False)
+
+# # Your signal (replace with cd_plot)
+# cd_plot = np.sin(2 * np.pi * 20 * t) + 0.5 * np.sin(2 * np.pi * 50 * t)
+
+# # Fix: scale must start from 1 (not 0)
+# scales = np.arange(1, 128)
+
+# # Custom CWT using PyWavelets
+# def custom_cwt(signal, scales, wavelet_name='cmor1.5-1.0', fs=1.0):
+#     try:
+#         cwt_matrix, freqs = pywt.cwt(signal, scales, wavelet_name, sampling_period=1/fs)
+#         return cwt_matrix, freqs
+#     except Exception as e:
+#         print("Error during CWT:", e)
+#         return None, None
+
+# # Run CWT safely
+# cwt_result, frequencies = custom_cwt(cd_plot, scales, wavelet_name='cmor1.5-1.0', fs=fs)
+
+# if cwt_result is not None:
+#     plt.figure(figsize=(10, 6))
+#     plt.imshow(np.abs(cwt_result), extent=[0, duration, frequencies[-1], frequencies[0]],
+#                aspect='auto', cmap='viridis')
+#     plt.colorbar(label='Magnitude')
+#     plt.xlabel('Time [s]')
+#     plt.ylabel('Frequency [Hz]')
+#     plt.title('Custom Morlet CWT (Magnitude)')
+#     plt.show()
+# else:
+#     print("CWT computation failed.")
+
 #----------------------Moving average
 # import pandas as pd
 # data = [5, 8, 9, 12, 14, 18]
@@ -133,8 +234,68 @@ plt.show()                   # Display the plot
 # plt.title('Drag Coefficient vs Time')  # Plot title
 # plt.grid(True)                # Show grid lines (optional)
 # plt.show()                   # Display the plot
+################# Morlet wave transform after smoothening
 
+# # Sampling info
+# fs = 100
+# duration = t_plot.iloc[-1] - t_plot.iloc[0] 
+# scales = np.arange(0.8125,580)
 
+# # Custom CWT using PyWavelets
+# def custom_cwt(signal, scales, wavelet_name='cmor1.5-1.0', fs=1.0):
+#     try:
+#         cwt_matrix, freqs = pywt.cwt(signal, scales, wavelet_name, sampling_period=1/fs)
+#         return cwt_matrix, freqs
+#     except Exception as e:
+#         print("Error during CWT:", e)
+#         return None, None
+
+# # Run CWT safely
+# cwt_result, frequencies = custom_cwt(cd_plot, scales, wavelet_name='cmor1.5-1.0', fs=fs)
+
+# if cwt_result is not None:
+#     plt.figure(figsize=(10, 6))
+#     plt.imshow(np.abs(cwt_result), extent=[0, duration, frequencies[-1], frequencies[0]],
+#                aspect='auto', cmap='viridis')
+#     plt.colorbar(label='Magnitude')
+#     plt.xlabel('Time [s]')
+#     plt.ylabel('Frequency [Hz]')
+#     plt.title('Custom Morlet CWT (Magnitude)')
+#     plt.show()
+# else:
+#     print("CWT computation failed.")
+
+#params
+duration = t_plot.iloc[-1] - t_plot.iloc[0] 
+t_for_morlet = t_plot.iloc[1]-t_plot.iloc[0]
+fs = 1/t_for_morlet
+fc = 0.8125 #for morlet 
+
+#freq ranges
+f_min = 0.10
+f_max = 10
+num_freq = 100
+frequencies = np.linspace(f_min, f_max, num_freq)
+
+#scales
+scales = fc*fs / frequencies
+
+#CWT
+cwt_matrix,_ = pywt.cwt(cd_plot, scales, 'cmor1.5-1.0', sampling_period=1/fs)
+print(f'CWT matrix shape: {cwt_matrix.shape}')
+print(f'Frequencies vector shape: {frequencies.shape}')
+
+plt.figure(figsize=(12, 6))
+plt.imshow(np.abs(cwt_matrix), extent=[0, duration, frequencies[-1], frequencies[0]],
+           cmap='viridis', aspect='auto')
+plt.colorbar(label='Magnitude')
+plt.xlabel('Time [s]')
+plt.ylabel('Frequency [Hz]')
+# plt.xticks(np.arange(min(cd_plot),max(cd_plot)+0.5,1))
+# plt.yticks(np.arange(min(scales),max(scales)+0.5,1))
+plt.title('Denoised Morlet Wavelet Transform (Magnitude)')
+plt.show()
+# sys.exit()
 
 #-----------------------------------RPP
 # ........................................AMI
