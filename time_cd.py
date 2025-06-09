@@ -1,6 +1,11 @@
-#Copyright © 2025 A B Keshav Kumar
-#All Rights Reserved.
-#This code is provided for viewing purposes only. Reproduction, redistribution, modification, or any other use is strictly prohibited without prior written permission from the author.
+# -----------------------------------------------------------------------------
+# Copyright (c) 2025 Keshav Kumar
+# All Rights Reserved.
+#
+# This code is proprietary and confidential.
+# No copying, modification, or redistribution allowed without permission.
+# -----------------------------------------------------------------------------
+
 
 #imports
 import numpy as np 
