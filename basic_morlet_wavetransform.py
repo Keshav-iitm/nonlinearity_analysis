@@ -15,7 +15,6 @@ noise = np.random.rand(T)
 f = 5
 signal = np.sin( 2 * np.pi * f *t) + 3*np.sin( 2 * np.pi * 15 *t) #+ 10*noise
 #morlet
-#center frequency of morlet is approx 0.8125
 fc = 0.8125
 #frequency ranges
 f_min = 1
