@@ -339,6 +339,7 @@ plt.imshow(magnitude, extent=[0, duration, frequencies[-1], frequencies[0]],
 plt.colorbar(label='Magnitude')
 plt.xlabel('Time [s]')
 plt.ylabel('Frequency [Hz]')
+plt.xlim(1.5,10)
 # plt.xticks(np.arange(min(cd_plot),max(cd_plot)+0.5,1))
 # plt.yticks(np.arange(min(scales),max(scales)+0.5,1))
 plt.title('Morlet Wavelet Transform')
