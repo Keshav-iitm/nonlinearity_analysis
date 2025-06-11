@@ -52,7 +52,7 @@ cd = data[:,1]
 #--------cd_vs_t plot 
 t_nd = t/1.66
 # print(t_nd)
-mask = (t_nd > 9)&(t_nd < 11)
+mask = (t_nd > 5)&(t_nd < 18)
 t_plot = t_nd[mask]
 cd_plot = cd[mask]
 # print (t_plot,cd_plot)
@@ -107,37 +107,37 @@ plt.ylabel("Amplitude")
 plt.grid()
 plt.legend()
 plt.show()
-# ################# Morlet wave transform
-#params
-duration = t_plot[-1] - t_plot[0] 
-t_for_morlet = t_plot[1]-t_plot[0]
-fs = 1/t_for_morlet
-fc = 0.8125 #for morlet 
+# # ################# Morlet wave transform
+# #params
+# duration = t_plot[-1] - t_plot[0] 
+# t_for_morlet = t_plot[1]-t_plot[0]
+# fs = 1/t_for_morlet
+# fc = 0.8125 #for morlet 
 
-#freq ranges
-f_min = 0.10
-f_max = 10
-num_freq = 100
-frequencies = np.linspace(f_min, f_max, num_freq)
+# #freq ranges
+# f_min = 0.10
+# f_max = 10
+# num_freq = 100
+# frequencies = np.linspace(f_min, f_max, num_freq)
 
-#scales
-scales = fc*fs / frequencies
+# #scales
+# scales = fc*fs / frequencies
 
-#CWT
-cwt_matrix,_ = pywt.cwt(cd_plot, scales, 'cmor1.5-1.0', sampling_period=1/fs)
-print(f'CWT matrix shape: {cwt_matrix.shape}')
-print(f'Frequencies vector shape: {frequencies.shape}')
+# #CWT
+# cwt_matrix,_ = pywt.cwt(cd_plot, scales, 'cmor1.5-1.0', sampling_period=1/fs)
+# print(f'CWT matrix shape: {cwt_matrix.shape}')
+# print(f'Frequencies vector shape: {frequencies.shape}')
 
-plt.figure(figsize=(12, 6))
-plt.imshow(np.abs(cwt_matrix), extent=[0, duration, frequencies[-1], frequencies[0]],
-           cmap='viridis', aspect='auto')
-plt.colorbar(label='Magnitude')
-plt.xlabel('Time [s]')
-plt.ylabel('Frequency [Hz]')
-# plt.xticks(np.arange(min(cd_plot),max(cd_plot)+0.5,1))
-# plt.yticks(np.arange(min(scales),max(scales)+0.5,1))
-plt.title('Morlet Wavelet Transform')
-plt.show()
+# plt.figure(figsize=(12, 6))
+# plt.imshow(np.abs(cwt_matrix), extent=[0, duration, frequencies[-1], frequencies[0]],
+#            cmap='viridis', aspect='auto')
+# plt.colorbar(label='Magnitude')
+# plt.xlabel('Time [s]')
+# plt.ylabel('Frequency [Hz]')
+# # plt.xticks(np.arange(min(cd_plot),max(cd_plot)+0.5,1))
+# # plt.yticks(np.arange(min(scales),max(scales)+0.5,1))
+# plt.title('Morlet Wavelet Transform')
+# plt.show()
 # #params
 # duration = t_plot[-1] - t_plot[0] 
 # t_for_morlet = t_plot[1]-t_plot[0]
@@ -243,6 +243,44 @@ plt.show()                   # Display the plot
 # plt.title('Drag Coefficient vs Time')  # Plot title
 # plt.grid(True)                # Show grid lines (optional)
 # plt.show()                   # Display the plot
+
+#FFT after smoothening 
+cd_array = np.asarray(cd_plot)
+n = len(cd_array)
+
+dt = (t_plot[10] - t_plot[9]) * 1.66  # If t_plot is non-dimensional
+
+# FFT
+xf = fft(cd_array - np.mean(cd_array))
+freqs = fftfreq(n, dt)
+pos_mask = freqs > 0
+fft_vals = 2.0 / n * np.abs(xf[pos_mask])
+freqs = freqs[pos_mask]
+
+# Optional: Limit range to find f₀ more reliably
+limit_mask = freqs < 5  # or another reasonable limit
+fo_idx = np.argmax(fft_vals[limit_mask])
+fo = freqs[limit_mask][fo_idx]
+
+print(f"dt (s): {dt:.5f}")
+print(f"Max frequency: {freqs[-1]:.3f} Hz")
+print(f"Dominant frequency (f₀): {fo:.3f} Hz")
+print(f"Corresponding period: {1/fo:.3f} s")
+
+# Plot FFT
+plt.plot(freqs, fft_vals, label='FFT', color='darkorange')
+for i in range(1, 11):
+    plt.axvline(i * fo, color='gray', linestyle='--', linewidth=1)
+    plt.text(i * fo, max(fft_vals) * 0.6, f'{i}f₀', rotation=90, fontsize=8, ha='right')
+plt.xlim(0, min(10 * fo, freqs[-1]))
+plt.title("FFT")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Amplitude")
+plt.grid()
+plt.legend()
+plt.show()
+
+
 ################# Morlet wave transform after smoothening
 
 # # Sampling info
@@ -282,7 +320,7 @@ fc = 0.8125 #for morlet
 
 #freq ranges
 f_min = 0.10
-f_max = 10
+f_max = 8
 num_freq = 100
 frequencies = np.linspace(f_min, f_max, num_freq)
 
@@ -290,19 +328,20 @@ frequencies = np.linspace(f_min, f_max, num_freq)
 scales = fc*fs / frequencies
 
 #CWT
-cwt_matrix,_ = pywt.cwt(cd_plot, scales, 'cmor1.5-1.0', sampling_period=1/fs)
+cwt_matrix,_ = pywt.cwt(cd_plot, scales, 'cmor3-1.0', sampling_period=1/fs)
 print(f'CWT matrix shape: {cwt_matrix.shape}')
 print(f'Frequencies vector shape: {frequencies.shape}')
 
+magnitude = np.abs(cwt_matrix)
 plt.figure(figsize=(12, 6))
-plt.imshow(np.abs(cwt_matrix), extent=[0, duration, frequencies[-1], frequencies[0]],
-           cmap='viridis', aspect='auto')
+plt.imshow(magnitude, extent=[0, duration, frequencies[-1], frequencies[0]],
+           cmap='jet', aspect='auto',vmin=0, vmax=np.max(magnitude)*0.5)
 plt.colorbar(label='Magnitude')
 plt.xlabel('Time [s]')
 plt.ylabel('Frequency [Hz]')
 # plt.xticks(np.arange(min(cd_plot),max(cd_plot)+0.5,1))
 # plt.yticks(np.arange(min(scales),max(scales)+0.5,1))
-plt.title('Denoised Morlet Wavelet Transform')
+plt.title('Morlet Wavelet Transform')
 plt.show()
 # sys.exit()
 
@@ -350,12 +389,12 @@ def first_local_minimum(data):
     return np.argmin(data) + 1
 ami_vals = compute_ami(cd_plot, max_lag=5000, bins=64)
 
-plt.plot(range(1,5001),ami_vals, 'b-o')
+plt.plot(range(1,5001),ami_vals, 'k-',linewidth=0.8)
 tau = first_local_minimum(ami_vals)
 # plt.axvline(x=tau, color='r', linestyle='--')
 # plt.axhline(y=ami_vals[tau-1],color='r',linestyle='--')
-plt.axvline(x=2050, color='r', linestyle='--')
-plt.axhline(y=3.653,color='r',linestyle='--')
+plt.axvline(x=2043, color='r', linestyle='--')
+plt.axhline(y=3.626,color='r',linestyle='--')
 plt.title('Average Mutual Information (AMI)')
 plt.xlabel('tau = t/T')
 plt.ylabel('AMI')
@@ -414,7 +453,7 @@ print (f"FNN Percentage is {fnn_per}")
 #plot
 fnn,_ = compute_fnn(cd_plot,tau)
 plt.plot(range(1,len(fnn)+1),fnn,'ko-',color = 'r', label='FNN%')
-plt.title("(Denoised) FNN percentage vs embedding dimension")
+plt.title("FNN percentage vs embedding dimension")
 plt.xlabel("Embedding dimension")
 plt.ylabel("FNN(%)")
 plt.xlim(1,10)

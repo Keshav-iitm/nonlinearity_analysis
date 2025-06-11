@@ -19,7 +19,7 @@ fc = 0.8125
 #frequency ranges
 f_min = 1
 f_max = 20
-num_freq = 100
+num_freq = 50
 frequencies = np.linspace(f_min,f_max,num_freq)
 
 #scales
