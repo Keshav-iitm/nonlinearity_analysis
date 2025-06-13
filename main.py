@@ -52,7 +52,7 @@ cd = data[:,1]
 #--------cd_vs_t plot 
 t_nd = t/1.66
 # print(t_nd)
-mask = (t_nd > 5)&(t_nd < 18)
+mask = (t_nd > 10)&(t_nd < 20)
 t_plot = t_nd[mask]
 cd_plot = cd[mask]
 # print (t_plot,cd_plot)
@@ -62,8 +62,8 @@ plt.plot(t_plot, cd_plot)               # Plot cd versus t with default line
 plt.xlabel('t/T')        # Label for x-axis
 plt.ylabel('Cd')             # Label for y-axis
 plt.title('Drag Coefficient vs Time')  # Plot title
-plt.xlim(9,11)
-plt.ylim(-0.4,0.4)
+plt.xlim(10,60)
+plt.ylim(-3,1)
 plt.grid(True)                # Show grid lines (optional)
 plt.show()                   # Display the plot
 # plt.plot(t_plot, cd_plot)               # Plot cd versus t with default line
@@ -229,8 +229,8 @@ plt.plot(t_plot, cd_plot)               # Plot cd versus t with default line
 plt.xlabel('t/T')        # Label for x-axis
 plt.ylabel('Cd')             # Label for y-axis
 plt.title('Denoised Drag Coefficient vs Time')  # Plot title
-plt.xlim(9,11)
-plt.ylim(-0.4,0.4)
+plt.xlim(10,60)
+plt.ylim(-3,1)
 plt.grid(True)                # Show grid lines (optional)
 plt.show()                   # Display the plot
 #------------------without non-dimensional
@@ -394,8 +394,8 @@ plt.plot(range(1,5001),ami_vals, 'k-',linewidth=0.8)
 tau = first_local_minimum(ami_vals)
 # plt.axvline(x=tau, color='r', linestyle='--')
 # plt.axhline(y=ami_vals[tau-1],color='r',linestyle='--')
-plt.axvline(x=2043, color='r', linestyle='--')
-plt.axhline(y=3.626,color='r',linestyle='--')
+plt.axvline(x=2900, color='r', linestyle='--')
+plt.axhline(y=1.07,color='r',linestyle='--')
 plt.title('Average Mutual Information (AMI)')
 plt.xlabel('tau = t/T')
 plt.ylabel('AMI')
