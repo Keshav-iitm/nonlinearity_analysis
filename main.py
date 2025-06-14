@@ -1,10 +1,3 @@
-# -----------------------------------------------------------------------------
-# Copyright (c) 2025 Keshav Kumar
-# All Rights Reserved.
-#
-# This code is proprietary and confidential.
-# No copying, modification, or redistribution allowed without permission.
-# -----------------------------------------------------------------------------
 
 
 #imports
