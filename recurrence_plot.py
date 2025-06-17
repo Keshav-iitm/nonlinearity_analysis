@@ -54,18 +54,31 @@ def compute_distance_matrix_parallel(Y, ncores=None):
 
     return np.vstack(results)
 
+# def plot_recurrence_matrix(R, t):
+#     """Plot the recurrence matrix with proper scaling, thinner points instead of thick blocks."""
+#     t_vals = t.to_numpy()
+#     coords = np.argwhere(R)  # find where R is true
+#     x_vals = t_vals[coords[:, 1]]
+#     y_vals = t_vals[coords[:, 0]]
+
+#     plt.figure()
+#     plt.scatter(x_vals, y_vals, s=0.05, color='black', alpha=0.5, marker='.') 
+    
+#     plt.title('Recurrence Plot')
+#     plt.xlabel('Time')
+#     plt.ylabel('Time')
+#     plt.grid()
+#     plt.show()
 def plot_recurrence_matrix(R, t):
-    """Plot the recurrence matrix with proper scaling, thinner points instead of thick blocks."""
+    """Plot the recurrence matrix with black-and-white coloring and thinner points."""
     t_vals = t.to_numpy()
     coords = np.argwhere(R)  # find where R is true
     x_vals = t_vals[coords[:, 1]]
     y_vals = t_vals[coords[:, 0]]
 
     plt.figure()
-    plt.scatter(x_vals, y_vals, s=0.1, color='black', alpha=0.5, marker='.') 
-    # s controls size (0.1 makes it tiny), marker='.' makes it a small dot, 
-    # and alpha makes it a bit transparent
-    
+    plt.scatter(x_vals, y_vals, s=0.0001, cmap='binary', color='black', marker='.', alpha=0.5)
+
     plt.title('Recurrence Plot')
     plt.xlabel('Time')
     plt.ylabel('Time')
@@ -82,7 +95,7 @@ def main():
     parser.add_argument('--window_size', type=int, default=120, help='Moving average window size')
     parser.add_argument('--downsample', type=int, default=10, help='Downsample by this factor')
     parser.add_argument('--dim', type=int, default=3, help='Embedding dimension')
-    parser.add_argument('--threshold_ratio', type=float, default=0.15, help='Distance Threshold in % of max')
+    parser.add_argument('--threshold_ratio', type=float, default=0.005, help='Distance Threshold in % of max')
     parser.add_argument('--tau', type=int, default=500, help='Time delay (samples)')
     parser.add_argument('--file', type=str, default='forcec.txt', help='Path to data file')
     args = parser.parse_args()
