@@ -54,36 +54,37 @@ def compute_distance_matrix_parallel(Y, ncores=None):
 
     return np.vstack(results)
 
+def plot_recurrence_matrix(R, t):
+    """Plot the recurrence matrix in black-and-white coloring (1 = black, 0 = white)."""
+    t_vals = t.to_numpy()
+    plt.figure()
+    plt.imshow(R, cmap='binary', origin='lower',
+               extent=[t_vals[0], t_vals[-1], t_vals[0], t_vals[-1]], 
+               aspect='equal')
+    plt.title('Recurrence Plot')
+    plt.xlabel('Time')
+    plt.ylabel('Time')
+    plt.xticks(np.arange(5.5, 25.1, 1))
+    plt.yticks(np.arange(5.5, 25.1, 1))
+    plt.grid()
+    plt.show()
+9
+
 # def plot_recurrence_matrix(R, t):
-#     """Plot the recurrence matrix with proper scaling, thinner points instead of thick blocks."""
+#     """Plot the recurrence matrix with black-and-white coloring and thinner points."""
 #     t_vals = t.to_numpy()
 #     coords = np.argwhere(R)  # find where R is true
 #     x_vals = t_vals[coords[:, 1]]
 #     y_vals = t_vals[coords[:, 0]]
 
 #     plt.figure()
-#     plt.scatter(x_vals, y_vals, s=0.05, color='black', alpha=0.5, marker='.') 
-    
+#     plt.scatter(x_vals, y_vals, s=0.0001, cmap='binary', color='black', marker='.', alpha=0.5)
+
 #     plt.title('Recurrence Plot')
 #     plt.xlabel('Time')
 #     plt.ylabel('Time')
 #     plt.grid()
 #     plt.show()
-def plot_recurrence_matrix(R, t):
-    """Plot the recurrence matrix with black-and-white coloring and thinner points."""
-    t_vals = t.to_numpy()
-    coords = np.argwhere(R)  # find where R is true
-    x_vals = t_vals[coords[:, 1]]
-    y_vals = t_vals[coords[:, 0]]
-
-    plt.figure()
-    plt.scatter(x_vals, y_vals, s=0.0001, cmap='binary', color='black', marker='.', alpha=0.5)
-
-    plt.title('Recurrence Plot')
-    plt.xlabel('Time')
-    plt.ylabel('Time')
-    plt.grid()
-    plt.show()
 
 
 
@@ -95,7 +96,7 @@ def main():
     parser.add_argument('--window_size', type=int, default=120, help='Moving average window size')
     parser.add_argument('--downsample', type=int, default=10, help='Downsample by this factor')
     parser.add_argument('--dim', type=int, default=3, help='Embedding dimension')
-    parser.add_argument('--threshold_ratio', type=float, default=0.005, help='Distance Threshold in % of max')
+    parser.add_argument('--threshold_ratio', type=float, default=0.05, help='Distance Threshold in % of max')
     parser.add_argument('--tau', type=int, default=500, help='Time delay (samples)')
     parser.add_argument('--file', type=str, default='forcec.txt', help='Path to data file')
     args = parser.parse_args()
@@ -109,7 +110,7 @@ def main():
     # ------------------------------------------------------------------------------
     # Prepare signals
     t_nd = t / 1.66
-    mask = (t_nd > 7) & (t_nd < 12)
+    mask = (t_nd > 5) & (t_nd < 26)
     t_plot = t_nd[mask]
     cd_plot = cd[mask]
 
